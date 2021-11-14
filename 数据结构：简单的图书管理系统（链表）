@@ -1,0 +1,206 @@
+#include <stdio.h>
+#include<string.h>
+#include <stdlib.h>
+#include <math.h>
+#define maxsize 10000
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+typedef struct booknode{
+	char name[50];
+	char writer[20];
+	int number;
+}Book;
+
+typedef struct sqnode{
+	Book date;
+	struct sqnode *next;
+}linklist;
+
+linklist *L;
+int n;//保存图书的本数  
+linklist* Initlist(linklist *L){
+ 	L=(linklist *)malloc(sizeof(linklist));
+ 	L->next=NULL;
+ 	return L;
+ }
+ //输入 
+ //尾插法建立链表 
+ void InputNumber(linklist *L){
+ 	linklist *p,*r;
+ 	r=L;
+ 	printf("请输入链表中元素的个数：");
+ 	scanf("%d",&n);
+ 	int i;
+ 	printf("请输入%d个元素:",n);
+ 	for(i=0;i<n;i++){
+ 	   p=(linklist *)malloc(sizeof(linklist)); 
+ 	   scanf("%s%s%d",p->date.name,p->date.writer,&p->date.number);
+ 	   p->next=r->next;
+ 	   r->next=p;
+ 	   r=p;
+     }
+ } 
+ //头插法建立链表
+ /* 
+ void InputNumber(linklist *L){
+ 	linklist *p,*r;
+ 	r=L;
+ 	printf("请输入链表中元素的个数：");
+ 	scanf("%d",&n);
+ 	int i;
+ 	printf("请输入%d个元素:",n);
+ 	for(i=0;i<n;i++){
+ 	   p=(linklist *L)malloc(sizeof(linklist)); 
+ 	   scanf("%s%s%d",p->date.name,p->date.writer,&p->date.number);
+ 	   p->next=r->next;
+ 	   r->next=p;
+ 	   r=p;
+     }
+ } 
+ */
+ //输出 
+ void outputlist(linklist *L){   
+ 	linklist *p;
+ 	p=L->next;
+ 	printf("\t书名\t作者\t书号\n");
+ 	while(p!=NULL){
+ 	   printf("\t%s\t%s\t%d\n",p->date.name,p->date.writer,p->date.number);
+ 	   p=p->next;
+ }
+  printf("\n");
+}
+ //查找
+void searchforname(linklist *L,char *name){  //按书名查询 
+  	int i;
+  	linklist *p;
+ 	p=L->next;
+  	for(i=0;i<n;i++){ 
+  	    if(strcmp(p->date.name,name )==0)
+  	        break;
+    }
+    if(i<n){
+        printf("你要查找的书名为%s的书号是:%d,作者是:%s\n",name,p->date.number,p->date.writer);
+		p=p->next;}	
+    else
+        printf("所查找的书籍不在列表内！\n");
+}
+void searchforwriter(linklist *L,char *writer){  //按作者查询 
+  	int i;
+	linklist *p;
+ 	p=L->next; 
+  	for(i=0;i<n;i++){ 
+  	    if(strcmp(p->date.writer,writer)==0)
+  	        break;
+    }
+    if(i<n){
+        printf("你要查找的作者为%s的书号是:%d,书名是:%s\n",writer,p->date.number,p->date.name); 
+        p=p->next;}	
+    else
+        printf("所查找的书籍不在列表内！");
+}
+void searchfornumber(linklist *L,int number){
+	int i;
+	linklist *p;
+ 	p=L->next; 
+  	for(i=0;i<n;i++){ 
+  	    if((p->date.number)==number)
+  	        break;
+    }
+    if(i<n){
+         printf("你要查找的书号为%d的作者是:%s,书名是:%s\n",p->date.number,p->date.writer,p->date.name); 
+        p=p->next;}	
+    else
+        printf("所查找的书籍不在列表内！");
+}
+void searchlist(linklist *L){
+	int choice;
+	char name[20];
+	char writer[50];
+	int number;
+	while(1){
+		printf("********现在开始查找*********\n");
+		printf("　　　　 1.按书名查找.\n") ; 
+		printf("　　　   2.按作者查找.\n") ; 
+		printf("　　　　 3.按书号查找.\n") ; 
+		printf("　　　　 0.退出\n") ;
+		printf("请输入你的选择：");
+		scanf("%d",&choice);
+		if(choice==0)break;
+		switch(choice){
+			case 1:printf("请输入你要查找的书名：");scanf("%s",&name);
+			       searchforname(L,name);break;
+			case 2:printf("请输入你要查找的作者：");scanf("%s",&writer);
+			       searchforwriter(L,writer);break;
+			case 3:printf("请输入你要查找的书号：");scanf("%d",&number);
+			       searchfornumber(L,number);break;
+		}  
+	}
+}
+//插入 
+void Insertlist(linklist *L,int i,Book e){     //在带头结点的单链线性表L中的第i个位置前插入元素e
+	linklist *p,*s;
+	int j;
+	p=L;j=0;
+	while(p!=NULL&&j<i-1){
+		p=p->next;
+		j++;
+	}
+	if(p==NULL){
+	printf("Error!\n");
+	  return;
+	}
+	s=(linklist *)malloc(sizeof(linklist));      //生成新节点
+	s->date=e;s->next=p->next;          //插入L中
+	p->next=s;
+}
+//删除
+void Deltelist(linklist *L,int i,Book e){     //在带头结点的单链线性表L中，删除第i个元素，并由e返回其值
+	linklist *p,*q;     
+	int j;
+	p=L;j=0;
+	while(p->next&&j<i-1){      //寻找第i个结点，并令p指向前趋
+		p=p->next;++j;
+	}
+	if(!(p->next)||j>i-1){
+	printf("Error!\n");
+	  return;
+	}
+	q=(linklist *)malloc(sizeof(linklist));
+	q=p->next;p->next=q->next;    //删除并释放结点
+	e=q->date;free(q);
+	
+}   
+int main(int argc, char *argv[]) { 
+	int choice;
+	Book e;
+	int i;
+	while(1){ 
+    printf("******图书管理信息系统*********\n");
+	printf("       1.初始化.\n");
+	printf("       2.图书信息输入.\n");
+	printf("       3.图书信息输出.\n");
+	printf("       4.图书信息的查询.\n");
+	printf("       5.图书信息的插入.\n");
+	printf("       6.图书信息的删除.\n");
+	printf("       0.退出.\n");
+	printf("请输入你的选择：");
+	scanf("%d",&choice);
+	if(choice==0)break;
+	else{
+		switch(choice){
+			case 1:L=Initlist(L);break;
+			case 2:InputNumber(L);break;
+			case 3:outputlist(L);break; 
+			case 4:printf("********现在开始查找*******\n");
+		           searchlist(L);break;
+		    case 5:printf("********现在开始插入*******\n");
+		           printf("请输入插入图书的信息:");scanf("%s%s%d",e.name,e.writer,&e.number);
+		           printf("请输入插入的位置:");scanf("%d",&i);
+		           Insertlist(L,i,e);break;
+		    case 6:printf("********现在开始删除*******\n");
+		           printf("请输入删除的位置:");scanf("%d",&i);
+		           Deltelist(L,i,e);break;
+		}
+	}
+}
+	return 0;
+}
