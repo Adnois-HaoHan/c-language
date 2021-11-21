@@ -1,0 +1,168 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */ 
+typedef struct binnode{
+     char data;
+  struct binnode *lchild,*rchild;
+}Bintree;
+
+Bintree *CreateBintree(Bintree *root){
+     char ch;
+  scanf("%c",&ch);
+  if(ch=='#'){
+     root=NULL;
+  return NULL;
+  }
+  else{
+    root=(Bintree *)malloc(sizeof(Bintree));
+    root->data=ch;
+    root->lchild=CreateBintree(root->lchild); 
+    root->rchild=CreateBintree(root->rchild);
+    return root;
+    }
+  }
+
+
+void preorder(Bintree *root){
+    if(root==NULL)
+    return;
+ else{
+    printf("%c",root->data);
+    preorder(root->lchild);
+    preorder(root->rchild); 
+    } 
+} 
+
+void inorder(Bintree *root){
+ if(root==NULL)
+    return;
+ else{
+    inorder(root->lchild);
+    printf("%c",root->data);
+    inorder(root->rchild);
+    }
+   } 
+
+
+void postorder(Bintree *root){
+    if(root==NULL)
+    return;
+ else{
+    postorder(root->lchild);
+    postorder(root->rchild);
+    printf("%c",root->data);
+    }
+   } 
+
+int countnode(Bintree *root){
+ int m,n; 
+   if(root==NULL)
+     return 0;
+  else{
+    m=countnode(root->lchild);
+    n=countnode(root->rchild); 
+  return m+n+1; 
+  }
+  } 
+ 
+
+int leafcount(Bintree *root){ 
+   if(root==NULL)
+   return 0;
+   else if(root->lchild==NULL&&root->rchild==NULL) 
+   return 1;
+   else
+   return leafcount(root->lchild)+leafcount(root->rchild);
+}
+
+
+int treedepth(Bintree *root){
+ int m,n;
+ if(root==NULL)
+     return 0;
+    else{
+    m=treedepth(root->lchild);
+    n=treedepth(root->rchild);  
+    if(m>n)
+       return m+1;
+     else
+       return n+1;
+ }
+}
+
+       
+
+ 
+void Search(char root, Bintree *nod)
+{
+    
+        if (nod->data == root)
+        {
+            printf("查找值为:%c\n", nod->data);
+        }
+        else if (nod->data > root)
+        {
+            Search(root, nod->lchild);  
+        }
+        else if (nod->data < root)
+        {
+            Search(root, nod->rchild);   
+        }
+}
+    
+int main(int argc, char *argv[]) {
+ int choice;
+ Bintree *root=NULL;
+ char ch;
+ int n;
+ while(1){
+  printf("******二叉树的相关操作*******\n");
+  printf("      1.二叉树的存储.\n");
+  printf("      2.先序遍历.\n");
+  printf("      3.中序遍历.\n");
+  printf("      4.后序遍历.\n");
+  printf("      5.求二叉树中结点的个数.\n");
+  printf("      6.求二叉树中叶子结点的个数.\n");
+  printf("      7.求二叉树深度.\n");
+  printf("      8.查找二叉树中的结点.\n");
+  printf("      0.退出.\n");
+  printf("      请输入你的选择:\n");
+  scanf("%d",&choice);
+  if(choice==0)break;
+  switch(choice){
+      case 1:printf("按先序遍历的方式建立二叉树（空结点用#表示）"); 
+           getchar();
+       root=CreateBintree(root);
+       break; 
+      case 2:printf("先序遍历序列为:");
+          preorder(root);
+          printf("\n"); 
+       break; 
+      case 3:printf("中序遍历序列为:");
+          inorder(root);
+          printf("\n"); 
+          break; 
+      case 4:printf("后序遍历序列为:");
+          postorder(root);
+          printf("\n"); 
+          break; 
+      case 5:printf("二叉树的结点个数为:%d\n",countnode(root)); 
+       break; 
+      case 6:printf("二叉树的叶子结点个数为:%d\n",leafcount(root));
+          break; 
+      case 7:printf("二叉树的深度为:%d\n",treedepth(root));
+          break; 
+   case 8:
+     printf("查找开始\n");
+     printf("输入你要查找的结点\n");
+     getchar(); 
+     scanf("%c",&ch);
+     Search(ch,root);
+     break;
+      
+ }
+ 
+ } 
+ return 0;
+ }
