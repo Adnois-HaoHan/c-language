@@ -1,0 +1,288 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define maxvex 20
+#define maxInt 32767 
+#define Maxsize 100
+/* run this program using the console pauser or add your own getch, system("pause") or input loop */
+typedef struct arcnode{
+	int adjvex;	//相邻边的结点在顶点表中的下标位置 
+	int info; //权值 
+	struct arcnode *next; 
+}arcNode;
+typedef struct vnode{
+	int vexdata;//顶点信息
+	arcNode *firstarc;
+	 
+}vNode; 
+typedef struct Graphnode{
+	vNode Vexs[maxvex];
+	int vexnum,arcnum;
+}ALGraph;
+
+int visited[maxvex];//辅助数组 visited [n] 
+// 查找顶点表中的顶点并且返回顶点的下标 
+int Locatvex(ALGraph *G,int u){
+	int i;
+	for(i=0;i<G->vexnum;i++){ 
+		if(u==G->Vexs[i].vexdata){ 
+			return i;
+		}	
+	} 
+	return -1;
+}
+void createALGraph(ALGraph *G){
+	printf("请输入总顶点数和总边数:\n");
+	scanf("%d%d",&G->vexnum,&G->arcnum);
+	printf("请输入顶点的信息：\n"); 
+	int i,j,k;
+	for(i=0;i<G->vexnum;i++){
+		scanf("%d",&G->Vexs[i].vexdata);
+		G->Vexs[i].firstarc = NULL; 	
+	}
+	int v1,v2;
+	int d;
+	arcNode *p1,*p2; 
+	printf("请输入相关边关联的顶点和边上的权值：\n");
+	for(k=0;k<G->arcnum;k++){
+		scanf("%d%d%d",&v1,&v2,&d);
+		i=Locatvex(G,v1);
+		j = Locatvex(G,v2);
+		p1 = (arcNode *)malloc(sizeof(arcNode));
+		p1->adjvex = j;
+		p1->info = d;
+		p1->next = G->Vexs[i].firstarc;
+		G->Vexs[i].firstarc = p1; 	
+		p2 = (arcNode *)malloc(sizeof(arcNode));
+		p2->adjvex = i;
+		p2->info = d;
+		p2->next = G->Vexs[j].firstarc;
+		G->Vexs[j].firstarc = p2;
+	}
+}
+//深度优先遍历
+void DFS(ALGraph *G,int v){
+
+	printf("%d ",G->Vexs[v].vexdata);
+	visited[v]=1;
+	arcNode *p = G->Vexs[v].firstarc;
+	int w;
+	while(p != NULL){
+		w = p->adjvex;
+		if(visited[w]==0){
+			DFS(G,w);
+		}
+		p = p->next;
+	} 
+
+} 
+
+void DFSALGraph(ALGraph *G){
+	int i;
+	for(i=0;i<G->vexnum;i++){
+	    visited[i]=0;
+	} 
+	for(i=0;i<G->vexnum;i++){	
+		if(visited[i]==0)
+		DFS(G,i);
+	} 
+}
+typedef struct{
+	int *base; //初始化的动态分配存储空间
+	int front; //头指针，若队列不空，则指向队列头元素
+	int rear;//尾指针，若队列不空，则指向队列尾元素的下一个位置
+}Sequeue;
+//构造一个空的队列
+void InitQueue(Sequeue *Q){
+	Q->base=(int *)malloc(Maxsize*sizeof(int));
+	if(!Q->base)
+		exit(0);
+	Q->front=Q->rear=0;
+}
+//返回队列Q的元素的个数，即队列的长度
+int QueueLength(Sequeue *Q){
+	return(Q->rear -Q->front+Maxsize)%Maxsize;
+}
+ 
+//插入元素e为Q的新的队尾元素
+void EnQueue(Sequeue *Q,int e){
+	if((Q->rear+1)%Maxsize==Q->front){
+		printf("The queue is full!\n");
+		return;
+	}
+	Q->base[Q->rear]=e;
+	Q->rear=(Q->rear +1)%Maxsize;
+}
+//若队列不为空，则删除Q的对头元素，用e返回其值
+void DeQueue(Sequeue *Q,int *e){
+	if(Q->front ==Q->rear){
+	 	printf("The queue is empty!\n");
+	 	return;
+	}
+	*e=Q->base[Q->front];
+	Q->front=(Q->front +1)%Maxsize;
+ }
+int IsEmpty(Sequeue *Q){
+	if(Q->front==Q->rear)
+		return 1;
+	else
+		return 0;
+}
+void BFS(ALGraph *G,int v){
+	Sequeue Q;
+	printf("%d ",G->Vexs[v].vexdata);
+	visited[v]=1;
+	int u,w;
+	arcNode *p = G->Vexs[v].firstarc;
+	//创建队列 
+	InitQueue(&Q);
+	//入队 
+	EnQueue(&Q,v);
+	while(!IsEmpty(&Q)){
+		//出队 
+		DeQueue(&Q,&u);
+		while(p != NULL){
+			w = p->adjvex;
+			if(visited[w]==0){
+				printf("%d ",G->Vexs[w].vexdata);
+				visited[w]=1;
+				EnQueue(&Q,w);
+			}
+			p = p->next;
+		}
+	}
+}
+void BFSALGraph(ALGraph *G){
+	int i;
+	for(i=0;i<G->vexnum;i++){
+	    visited[i]=0;
+	} 
+	for(i=0;i<G->vexnum;i++)
+	{	if(visited[i]==0)
+		BFS(G,i);} 
+}
+//求节点的度(即为顶点后面有多少个acrNode)
+void  ALGraphTD(ALGraph *G){
+	int i,j;
+	arcNode *p;
+	int vexArray[maxvex] = {0};
+	for(i = 0;i < G->vexnum;i++){
+		p = G->Vexs[i].firstarc;
+		while(p != NULL){
+			vexArray[i]++;
+			p = p->next;
+		}					
+		printf("此结点%d的度为：%d\n",G->Vexs[i].vexdata,vexArray[i]);
+	}  	
+}
+//判断图是否连通
+// 输入一个点通过深度优先遍历它能够一次就输出全部顶点就为连通 
+void isConnection(ALGraph *G){
+	int i;
+	int j =0;//接收顶点的下标 
+	int v;
+	int isFlag = 0;
+	for(i=0;i<G->vexnum;i++){
+	    visited[i]=0;
+	} 
+	printf("请输入一个顶点\n");
+	scanf("%d",&v);
+	j = Locatvex(G,v);//返回顶点的下标 
+	if(i != -1){
+		DFS(G,j);
+	}
+	//用来判断是否一次就能把整个图遍历完 
+	for(i=0;i<G->vexnum;i++){
+	    if(visited[i] == 1){
+	    	isFlag++;
+		}
+	}
+	printf("isFlag = %d\n",isFlag);
+	if(isFlag == G->vexnum){
+		printf("这个图是一个连通图\n");
+	} else{
+		printf("这个图不是一个连通图\n");
+	}
+	
+} 
+void  Prim(ALGraph *G){ //g为连通图，v为起点
+	int vex;
+	int v; //接收顶点的下标 
+	printf("请输入一个顶点\n");
+	scanf("%d",&vex);
+	v = Locatvex(G,vex);//返回顶点的下标  
+	int lowcost[maxvex];
+    int min;
+    int closest[maxvex],i,j,k;
+    arcNode *p,*p1;
+   	for (i=0;i< G->vexnum;i++){	//给lowcost[]和closest[]置初值
+   		lowcost[i]=Maxsize;
+		closest[i]=v;
+    }
+    p = G->Vexs[v].firstarc;
+    while(p != NULL){
+    	lowcost[p->adjvex] = p->info;
+    	p = p->next;
+	}
+   	lowcost[v]=0;
+	for (i=1;i<G->vexnum;i++){	  	//输出(n-1)条边
+    	min=maxInt;
+     	for (j=0;j<G->vexnum;j++){ 	//在(V-U)中找出离U最近的顶点k
+			if (lowcost[j]!=0 && lowcost[j]<min){
+	  			min=lowcost[j];
+	   			k=j;			//k记录最近顶点编号
+			}
+		}
+     	printf(" 边(%d，%d)权为:%d\n",closest[k],k,min);
+     	lowcost[k]=0;		//标记k已经加入U
+     	p1 = G->Vexs[k].firstarc;
+    	while(p1 != NULL){
+     		if (lowcost[p1->adjvex]!=0 && p1->info<lowcost[p1->adjvex]){  
+	 			lowcost[p1->adjvex]=p1->info;
+        		closest[p1->adjvex]=k;
+     		}
+     		p1 = p1->next;
+		}	
+   }
+}
+int main(){
+	int choice;
+	ALGraph G;
+	while(1){
+		printf("**********图的相关操作(链式存储)**********\n");
+		printf("          1.图的邻接矩阵的储存.\n");
+		printf("          2.深度优先遍历.\n");
+		printf("          3.广度优先遍历.\n");
+		printf("          4.求结点的度.\n");
+		printf("          5.判断图是否连通.\n");
+		printf("          6.求最小生成树.\n");
+		printf("          0.退出.\n"); 
+		printf("          请输入你的选择..\n");
+		scanf("%d",&choice); 
+	    if(choice==0)
+			break;
+		switch(choice){
+		case 1:
+			printf("******现在开始生成邻接矩阵*****\n");
+			createALGraph(&G);
+			break;
+		case 2:printf("深度优先遍历结果是：");
+			DFSALGraph(&G);
+			printf("\n");
+			break;
+		case 3:printf("广度优先遍历结果是：");
+			BFSALGraph(&G);
+			printf("\n");
+			break;
+	    case 4:
+			ALGraphTD(&G);
+			break;
+	    case 5:	
+			isConnection(&G);
+			break;
+	    case 6:
+	    	Prim(&G);
+	    	break;	
+		} 
+   	}
+   	return 0;
+}
